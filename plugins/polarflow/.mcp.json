@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "polarflow": {
+      "command": "cmd",
+      "args": ["/c", "${CLAUDE_PLUGIN_ROOT}\\scripts\\polarflow-mcp.cmd"],
+      "timeout": 180000
+    }
+  }
+}

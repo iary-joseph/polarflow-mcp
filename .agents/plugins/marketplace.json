@@ -1,0 +1,22 @@
+{
+  "name": "polarflow-mcp",
+  "interface": {
+    "displayName": "PolarFlow MCP"
+  },
+  "plugins": [
+    {
+      "name": "polarflow",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/iary-joseph/polarflow-mcp.git",
+        "path": "./plugins/polarflow",
+        "ref": "main"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

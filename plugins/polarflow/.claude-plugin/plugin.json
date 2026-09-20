@@ -1,0 +1,13 @@
+{
+  "name": "polarflow",
+  "displayName": "PolarFlow",
+  "version": "1.0.0",
+  "description": "Skill + serveur MCP PolarFlow : lire, tester et modifier les pipelines via le moteur local.",
+  "author": {
+    "name": "Iary Joseph"
+  },
+  "repository": "https://github.com/iary-joseph/polarflow-mcp",
+  "homepage": "https://github.com/iary-joseph/polarflow-mcp",
+  "license": "MIT",
+  "keywords": ["polarflow", "polars", "mcp", "data", "pipeline"]
+}

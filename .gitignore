@@ -1,0 +1,5 @@
+# Fichiers locaux / temporaires
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

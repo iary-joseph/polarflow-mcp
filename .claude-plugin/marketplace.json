@@ -1,0 +1,27 @@
+{
+  "name": "polarflow-mcp",
+  "owner": {
+    "name": "Iary Joseph",
+    "url": "https://github.com/iary-joseph"
+  },
+  "description": "Plugin PolarFlow : skill + serveur MCP pour piloter le moteur local depuis Claude Code.",
+  "version": "1.0.0",
+  "plugins": [
+    {
+      "name": "polarflow",
+      "displayName": "PolarFlow",
+      "source": "./plugins/polarflow",
+      "description": "Skill + serveur MCP PolarFlow : ouvrir un pipeline, schémas, aperçus, tester/appliquer du python_column, générer script ou notebook.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Iary Joseph"
+      },
+      "homepage": "https://github.com/iary-joseph/polarflow-mcp",
+      "repository": "https://github.com/iary-joseph/polarflow-mcp",
+      "license": "MIT",
+      "keywords": ["polarflow", "polars", "mcp", "pipeline"],
+      "category": "productivity",
+      "tags": ["data", "mcp", "polarflow"]
+    }
+  ]
+}

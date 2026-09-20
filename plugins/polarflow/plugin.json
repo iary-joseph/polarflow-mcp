@@ -1,0 +1,13 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "polarflow",
+  "version": "1.0.0",
+  "description": "Skill + serveur MCP PolarFlow : lire, tester et modifier les pipelines via le moteur local.",
+  "author": {
+    "name": "Iary Joseph"
+  },
+  "homepage": "https://github.com/iary-joseph/polarflow-mcp",
+  "repository": "https://github.com/iary-joseph/polarflow-mcp",
+  "license": "MIT",
+  "keywords": ["polarflow", "polars", "mcp", "data", "pipeline"]
+}
