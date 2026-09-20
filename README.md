@@ -16,7 +16,7 @@ moteur PolarFlow (Studio lancé)
 
 ## Prérequis
 
-- **PolarFlow Studio installé** sur le poste (le MCP réutilise son binaire — rien à télécharger).
+- **PolarFlow Studio installé** sur le poste (le MCP réutilise son binaire — rien à télécharger), dans une **version qui embarque le mode MCP** (`--mcp`). Un binaire antérieur démarre un serveur HTTP et le client ne verra jamais les outils : mettez Studio à jour si `pf_status` ne répond pas alors que l'application est installée.
 - **PolarFlow Studio lancé** pour les outils moteur (`pf_schema`, `pf_preview`, `pf_validate_python_column`, `pf_codegen`) ; les outils fichier fonctionnent sans.
 - Windows.
 

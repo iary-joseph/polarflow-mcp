@@ -33,6 +33,7 @@
 ## Cas particuliers
 
 - **Le client ne voit pas les outils `pf_*`** : après une installation de serveur MCP, il faut redémarrer le client (`/reload-plugins` dans Claude Code). Vérifier `/mcp` (Claude Code) ou `codex mcp list`.
+- **Les outils n'apparaissent jamais alors que Studio est installé** : l'installation date d'avant le mode MCP (`--mcp`) — mettre PolarFlow Studio à jour. Test rapide : `& "$env:LOCALAPPDATA\Programs\PolarFlow Studio\polarflow-engine.exe" --mcp` doit attendre en silence (serveur MCP) et non afficher `{"event": "engine_started", ...}` (ancien serveur HTTP).
 - **Le premier lancement du serveur est lent (~5 s)** : le binaire est un exécutable auto-extractible. Augmenter `startup_timeout_sec` (Codex) ou `MCP_TIMEOUT` (Claude Code) si besoin.
 - **Test long coupé par le client** : `tool_timeout_sec = 150` (Codex) ou `"timeout": 180000` (Claude Code `.mcp.json`) couvrent les 120 s maximales du moteur.
 - **Deux clients ouverts en parallèle** : les gardes sont par processus ; éviter deux tests simultanés sur le même pipeline.

@@ -2,7 +2,7 @@
 
 ## Prérequis (tous les clients)
 
-1. PolarFlow Studio installé (installation par utilisateur par défaut).
+1. PolarFlow Studio installé (installation par utilisateur par défaut), dans une **version embarquant le mode MCP** (`--mcp`). Version antérieure = serveur HTTP au lieu du serveur MCP : les outils `pf_*` n'apparaissent jamais. Mettre Studio à jour avant d'installer le MCP.
 2. Vérifier le binaire du moteur :
 
    ```powershell
