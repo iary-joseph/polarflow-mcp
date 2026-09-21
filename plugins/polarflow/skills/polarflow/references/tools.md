@@ -12,9 +12,17 @@ Tous les chemins sont **absolus** (Windows). `project_dir` est obligatoire si le
 | `pf_companion_context` | `document_ref`, `focus_node_ids?` (8 max), `view?` (`summary`/`focused`/`full`) | `{revision, context{revision, overview, details, evidence, coverage, lineage, quality, dataset_contract, used_types}, truncated, omissions}` | non |
 | `pf_help` | `topic?`, `query?` | `{results[{id, title, source, excerpt}], truncated, omissions}` (10 max, insensible casse/accents) | non |
 | `pf_node_catalog` | — | `{types: {type: {category, data_schema, recipes[{title, data, fixture_kind}]}}, truncated, omissions}` | non |
+| `pf_profile` | `document_ref`, `node_id`, `columns?` (100 max), `mode?` (`quick`/`full`) | `{revision, node_id, mode, row_count, columns, truncated, omissions}` | **oui** |
+| `pf_quality` | `document_ref`, `node_id?` | `{revision, target, score, results, blocked, warn_only, truncated, omissions}` (100 résultats, messages 500 car.) | **oui** |
+| `pf_verify_pipeline` | `document_ref` | `{revision, healthy, anomalies, readers, writers, inline_code, ...}` (jamais d'erreur) | non |
 | `pf_preview` | `document_ref`, `node_id`, `limit?` (1..50, défaut 20) | `{revision, columns, rows, truncated, omissions}` | **oui** |
 | `pf_validate_python_column` | `document_ref`, `node_id`, `code`, `execution_mode?` (`dataframe`/`batch`/`element`) | `{validation_id, node_id, execution_mode, candidate_sha256, source_revision, observation, preview, delta, duration_ms, expires_in_s}` | **oui** |
 | `pf_apply_python_column_code` | `validation_id`, `accept_contract?` (défaut `true`) | `{applied, already_applied, node_id, contract_written, revision}` | non |
+| `pf_validate_python_reader` | `document_ref`, `node_id`, `code` | `{validation_id, observed_columns, preview, truncated, omissions, expires_in_s}` | **oui** |
+| `pf_apply_python_reader_code` | `validation_id`, `accept_schema?` (défaut `true`) | `{applied, node_id, schema_written, warnings, revision}` | non |
+| `pf_validate_pipeline_patch` | `document_ref`, `groups` (5 max, 10 ops, code Python exclu) | `{validation_id, status, groups, dropped_groups, warnings, expires_in_s}` | non |
+| `pf_apply_pipeline_patch` | `validation_id`, `selected_group_ids?` (`None` = tout) | `{applied, groups_applied, revision}` | non |
+| `pf_scan_pipelines` | `root`, `recursive?`, `pattern?` | `{root, files[{path, size_bytes, valid, ...}], truncated, omissions}` (100 max) | non |
 | `pf_codegen` | `document_ref`, `save_to`, `format?` (`script`/`notebook`), `overwrite?`, `strict?` | `{path, bytes, sha256, format, warnings, syntax_ok, run_contract_present}` | non |
 
 ## Cycle validate → apply
@@ -45,10 +53,15 @@ pf_apply_python_column_code(validation_id, accept_contract=true)
 | Donnée | Limite |
 |---|---|
 | Fichier pipeline | 5 Mio |
-| Aperçu | 50 lignes, cellule 4 000 caractères, réponse 256 Kio |
+| Aperçu | 100 colonnes, 50 lignes, cellule 4 000 caractères, enveloppe 256 Kio (octets) |
 | Schémas | 200 nœuds, 100 colonnes par nœud |
+| Contexte compagnon | 40 Kio, focus 8 nœuds max |
+| Catalogue | 40 Kio (types réduits à la catégorie si dépassement) |
+| Profil | 100 colonnes |
+| Qualité | 100 résultats, messages 500 caractères, enveloppe 256 Kio |
+| Scan | 100 fichiers, profondeur 8, validité 5 Mio par fichier |
 | `document_ref` | 1 h d'inactivité |
-| `validation_id` | 15 min, usage unique |
+| `validation_id` / `patchval_*` | 15 min, usage unique |
 | Timeouts moteur | 30 s schéma, 120 s aperçu/test, 60 s codegen |
 
 Toute troncature est signalée (`truncated: true` + `omissions`).

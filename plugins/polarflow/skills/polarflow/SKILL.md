@@ -74,18 +74,21 @@ Après activation : redémarrer le client (un serveur MCP ne se recharge pas à 
    - `project_dir` est obligatoire si le pipeline contient des chemins relatifs (c'est le dossier projet PolarFlow, pas forcément le dossier du fichier).
 2. **Comprendre** : `pf_companion_context(document_ref)` d'abord (dossier complet en un appel, mode schéma, gratuit), puis `pf_schema(document_ref, node_id?)` si besoin et `pf_node_catalog()` (types + recettes éprouvées par type). `pf_help(query="...")` répond aux questions produit (« comment faire un unpivot ? »).
 3. **Observer** : `pf_preview(document_ref, node_id, limit<=50)` — exécute le pipeline jusqu'au nœud.
-4. **Modifier du code `python_column`** :
+4. **Diagnostiquer** (sans écrire) : `pf_profile(document_ref, node_id)` (statistiques), `pf_quality(document_ref)` (écarts aux règles), `pf_verify_pipeline(document_ref)` (bilan structurel, jamais d'erreur : cassé = `healthy=false`).
+5. **Modifier du code `python_column`** :
    - `pf_validate_python_column(document_ref, node_id, code, execution_mode?)` → aperçu + schéma observé + `validation_id` (15 min, usage unique).
    - `pf_apply_python_column_code(validation_id, accept_contract=true)` → réécrit le fichier avec **exactement** le code testé.
-5. **Exporter** : `pf_codegen(document_ref, save_to="C:\projet\export\pipeline.py")` (ou `format="notebook"` avec un chemin `.ipynb`).
+   - Même discipline pour `python_reader` : `pf_validate_python_reader` (pipeline jetable, schéma observé) puis `pf_apply_python_reader_code` (`output_schema`, jamais de contrat).
+6. **Retoucher le graphe** : `pf_validate_pipeline_patch(document_ref, groups)` → proposition (5 groupes, 10 ops, code Python exclu), puis `pf_apply_pipeline_patch(validation_id, selected_group_ids?)` (tout ou partie, garde SHA-256). Pour un dossier : `pf_scan_pipelines(root)` puis une boucle validate → apply par fichier.
+7. **Exporter** : `pf_codegen(document_ref, save_to="C:\projet\export\pipeline.py")` (ou `format="notebook"` avec un chemin `.ipynb`).
 
 Détail des outils et des erreurs : `references/tools.md` et `references/troubleshooting.md`.
 
 ## 4. Règles non négociables
 
 - **Ne jamais éditer le fichier pipeline à la main** pendant une session MCP : les modifications passent par le MCP (gardes de révision), sinon l'utilisateur perd le bénéfice des contrôles.
-- **Toujours validate → apply.** N'applique jamais un code qui n'a pas passé `pf_validate_python_column`, et n'applique pas un code différent de celui testé.
-- **Le code testé s'exécute localement** : préviens l'utilisateur avant `pf_preview` / `pf_validate_python_column` (approbation), et n'enchaîne pas de retry automatique.
+- **Toujours validate → apply** (code comme graphe). N'applique jamais ce qui n'a pas passé la validation, et n'applique pas autre chose que le contenu testé.
+- **Le code testé s'exécute localement** : préviens l'utilisateur avant `pf_preview` / `pf_validate_python_column` / `pf_validate_python_reader` / `pf_profile` / `pf_quality` (approbation), et n'enchaîne pas de retry automatique.
 - **Aucune exécution complète** : `pf_run` n'existe pas ; le lancement complet du pipeline reste dans l'interface Studio.
 - Après une erreur `stale_document` : le fichier a changé, refais un test avant toute application.
 - Si le moteur n'est pas lancé, arrête-toi et demande à l'utilisateur d'ouvrir Studio : n'essaie pas de lancer l'application toi-même.
