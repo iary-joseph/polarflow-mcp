@@ -72,7 +72,7 @@ Après activation : redémarrer le client (un serveur MCP ne se recharge pas à 
 1. **Ouvrir** : `pf_open_pipeline(pipeline_path="C:\projet\pipeline.json", project_dir="C:\projet")` → `document_ref`.
    - Chemins **absolus** obligatoires.
    - `project_dir` est obligatoire si le pipeline contient des chemins relatifs (c'est le dossier projet PolarFlow, pas forcément le dossier du fichier).
-2. **Comprendre** : `pf_schema(document_ref, node_id?)` (schémas, sans exécuter) et `pf_node_catalog()` (types de nœuds).
+2. **Comprendre** : `pf_companion_context(document_ref)` d'abord (dossier complet en un appel, mode schéma, gratuit), puis `pf_schema(document_ref, node_id?)` si besoin et `pf_node_catalog()` (types + recettes éprouvées par type). `pf_help(query="...")` répond aux questions produit (« comment faire un unpivot ? »).
 3. **Observer** : `pf_preview(document_ref, node_id, limit<=50)` — exécute le pipeline jusqu'au nœud.
 4. **Modifier du code `python_column`** :
    - `pf_validate_python_column(document_ref, node_id, code, execution_mode?)` → aperçu + schéma observé + `validation_id` (15 min, usage unique).

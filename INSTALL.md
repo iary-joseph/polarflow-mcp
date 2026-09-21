@@ -13,6 +13,18 @@
 
 3. Pour les outils moteur, **PolarFlow Studio doit être lancé** : le serveur MCP le découvre tout seul (pas de port à configurer).
 
+### Méthode rapide : bloc généré par le moteur
+
+```powershell
+& "$env:LOCALAPPDATA\Programs\PolarFlow Studio\polarflow-engine.exe" --mcp-config claude   # ou codex, delos
+```
+
+Imprime le bloc exact (chemin réel, `POLARFLOW_MCP_CLIENT` inclus) à coller dans la configuration du client. Avec `--write` (confirmation demandée, `--yes` pour les scripts), le moteur écrit et sauvegarde lui-même `~/.claude.json` ou `~/.codex/config.toml` :
+
+```powershell
+& "$env:LOCALAPPDATA\Programs\PolarFlow Studio\polarflow-engine.exe" --mcp-config codex --write
+```
+
 ---
 
 ## Claude Code

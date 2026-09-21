@@ -9,7 +9,9 @@ Tous les chemins sont **absolus** (Windows). `project_dir` est obligatoire si le
 | `pf_open_pipeline` | `pipeline_path`, `project_dir?` | `{document_ref, revision, pipeline_path, project_dir, summary, expires_in_s}` | non |
 | `pf_get_pipeline` | `document_ref` | `{revision, pipeline, truncated}` | non |
 | `pf_schema` | `document_ref`, `node_id?` | `{revision, schemas[], truncated, omissions[]}` | non |
-| `pf_node_catalog` | — | `{types: {type: {category, data_schema}}}` | non |
+| `pf_companion_context` | `document_ref`, `focus_node_ids?` (8 max), `view?` (`summary`/`focused`/`full`) | `{revision, context{revision, overview, details, evidence, coverage, lineage, quality, dataset_contract, used_types}, truncated, omissions}` | non |
+| `pf_help` | `topic?`, `query?` | `{results[{id, title, source, excerpt}], truncated, omissions}` (10 max, insensible casse/accents) | non |
+| `pf_node_catalog` | — | `{types: {type: {category, data_schema, recipes[{title, data, fixture_kind}]}}, truncated, omissions}` | non |
 | `pf_preview` | `document_ref`, `node_id`, `limit?` (1..50, défaut 20) | `{revision, columns, rows, truncated, omissions}` | **oui** |
 | `pf_validate_python_column` | `document_ref`, `node_id`, `code`, `execution_mode?` (`dataframe`/`batch`/`element`) | `{validation_id, node_id, execution_mode, candidate_sha256, source_revision, observation, preview, delta, duration_ms, expires_in_s}` | **oui** |
 | `pf_apply_python_column_code` | `validation_id`, `accept_contract?` (défaut `true`) | `{applied, already_applied, node_id, contract_written, revision}` | non |
@@ -59,4 +61,4 @@ Les erreurs sont des `ToolError` dont le message est un JSON :
 {"code": "stale_document", "message": "le pipeline a changé depuis la validation", "retryable": true, "action": "Relancez pf_validate_python_column sur la version courante.", "diagnostic": null}
 ```
 
-`engine_unavailable`, `engine_incompatible`, `document_not_found`, `invalid_pipeline`, `invalid_code`, `stale_document`, `validation_expired`, `validation_consumed`, `contract_not_supported`, `unsafe_path`, `output_exists`, `output_too_large`, `io_error`, `engine_error`.
+`engine_unavailable`, `engine_incompatible`, `engine_busy` (réessayez, `retryable: true`), `document_not_found`, `invalid_pipeline`, `invalid_code`, `stale_document`, `validation_expired`, `validation_consumed`, `contract_not_supported`, `unsafe_path`, `output_exists`, `output_too_large`, `io_error`, `engine_error`.
