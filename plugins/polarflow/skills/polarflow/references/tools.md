@@ -20,10 +20,16 @@ Tous les chemins sont **absolus** (Windows). `project_dir` est obligatoire si le
 | `pf_apply_python_column_code` | `validation_id`, `accept_contract?` (défaut `true`) | `{applied, already_applied, node_id, contract_written, revision}` | non |
 | `pf_validate_python_reader` | `document_ref`, `node_id`, `code` | `{validation_id, observed_columns, preview, truncated, omissions, expires_in_s}` | **oui** |
 | `pf_apply_python_reader_code` | `validation_id`, `accept_schema?` (défaut `true`) | `{applied, node_id, schema_written, warnings, revision}` | non |
-| `pf_validate_pipeline_patch` | `document_ref`, `groups` (5 max, 10 ops, code Python exclu) | `{validation_id, status, groups, dropped_groups, warnings, expires_in_s}` | non |
+| `pf_validate_pipeline_patch` | `document_ref` (fichier), `groups` (5 max, 10 ops, code Python exclu) | `{validation_id, status, groups, dropped_groups, warnings, expires_in_s}` | non |
 | `pf_apply_pipeline_patch` | `validation_id`, `selected_group_ids?` (`None` = tout) | `{applied, groups_applied, revision}` | non |
 | `pf_scan_pipelines` | `root`, `recursive?`, `pattern?` | `{root, files[{path, size_bytes, valid, ...}], truncated, omissions}` (100 max) | non |
-| `pf_codegen` | `document_ref`, `save_to`, `format?` (`script`/`notebook`), `overwrite?`, `strict?` | `{path, bytes, sha256, format, warnings, syntax_ok, run_contract_present}` | non |
+| `pf_live_status` | — | `{live_ref, revision, pushed_at, expires_in_s, proposals_pending}` (jamais de contenu) | non |
+| `pf_propose_patch` | `live_ref`, `groups` (idem patch fichier) | `{proposal_id, kind: "patch", live_ref, base_revision, groups, dropped_groups, warnings}` | non |
+| `pf_propose_python_column_code` | `live_ref`, `validation_id` (test live, scène inchangée, reçu consommé) | `{proposal_id, kind: "code", live_ref, base_revision, node_id, execution_mode, columns}` | non |
+| `pf_run_plan` | `document_ref` (fichier ou live ; live = snapshot, pas le fourni) | `{run_token, revision, node_count, edge_count, readers, writers[{node_id, output_path, exists, overwrite}], inline_code, quality_blocks[id], quality_rejects[{id, kind, column}], expires_in_s}` | non |
+| `pf_run_start` | `run_token`, `confirm` (`true` exigé) | `{status: completed\|cancelled, revision, writers, outputs, message?, confirmation_note?}` | **oui** |
+| `pf_run_cancel` | — | `{cancelled, reason?}` (`no_active_run` si rien ne tourne) | non |
+| `pf_codegen` | `document_ref` (fichier), `save_to`, `format?` (`script`/`notebook`), `overwrite?`, `strict?` | `{path, bytes, sha256, format, warnings, syntax_ok, run_contract_present}` | non |
 
 ## Cycle validate → apply
 
@@ -60,9 +66,11 @@ pf_apply_python_column_code(validation_id, accept_contract=true)
 | Profil | 100 colonnes |
 | Qualité | 100 résultats, messages 500 caractères, enveloppe 256 Kio |
 | Scan | 100 fichiers, profondeur 8, validité 5 Mio par fichier |
+| Session live | 30 min d'inactivité, slot unique (dernier push gagne), révocation immédiate ; propositions 15 min, purgées à chaque push ; `live_ref` = révision + dossier |
 | `document_ref` | 1 h d'inactivité |
 | `validation_id` / `patchval_*` | 15 min, usage unique |
-| Timeouts moteur | 30 s schéma, 120 s aperçu/test, 60 s codegen |
+| `run_token` | 15 min, usage unique (consommé seulement à l'exécution) |
+| Timeouts moteur | 30 s schéma, 120 s aperçu/test, 60 s codegen, 600 s run |
 
 Toute troncature est signalée (`truncated: true` + `omissions`).
 
@@ -74,4 +82,4 @@ Les erreurs sont des `ToolError` dont le message est un JSON :
 {"code": "stale_document", "message": "le pipeline a changé depuis la validation", "retryable": true, "action": "Relancez pf_validate_python_column sur la version courante.", "diagnostic": null}
 ```
 
-`engine_unavailable`, `engine_incompatible`, `engine_busy` (réessayez, `retryable: true`), `document_not_found`, `invalid_pipeline`, `invalid_code`, `stale_document`, `validation_expired`, `validation_consumed`, `contract_not_supported`, `unsafe_path`, `output_exists`, `output_too_large`, `io_error`, `engine_error`.
+`engine_unavailable`, `engine_incompatible`, `engine_busy` (réessayez, `retryable: true`), `document_not_found`, `invalid_pipeline`, `invalid_code`, `stale_document`, `validation_expired`, `validation_consumed`, `contract_not_supported`, `unsafe_path`, `output_exists`, `output_too_large`, `io_error`, `engine_error`, `live_forbidden` (repousser depuis Studio), `live_expired` (relire `pf_live_status`), `live_read_only` (proposer via `pf_propose_patch`), `needs_studio_confirm` (« Autoriser le prochain run », le plan reste valide), `invalid_run_token` (redemander un plan).

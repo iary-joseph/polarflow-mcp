@@ -82,6 +82,15 @@ Après activation : redémarrer le client (un serveur MCP ne se recharge pas à 
 6. **Retoucher le graphe** : `pf_validate_pipeline_patch(document_ref, groups)` → proposition (5 groupes, 10 ops, code Python exclu), puis `pf_apply_pipeline_patch(validation_id, selected_group_ids?)` (tout ou partie, garde SHA-256). Pour un dossier : `pf_scan_pipelines(root)` puis une boucle validate → apply par fichier.
 7. **Exporter** : `pf_codegen(document_ref, save_to="C:\projet\export\pipeline.py")` (ou `format="notebook"` avec un chemin `.ipynb`).
 
+## Travailler sur le document ouvert (live)
+
+Si Studio partage son canvas (`pf_live_status` → `live_ref`, sinon : demander à
+l'utilisateur d'activer « Partager » dans le panneau Assistant externe) :
+
+1. Tous les outils de lecture/test ci-dessus acceptent `live_*` au lieu de `document_ref`.
+2. `pf_propose_patch(live_ref, groups)` dépose une retouche (même discipline que le patch fichier, code Python exclu) ; l'utilisateur l'applique en 1 clic. Scène changée = proposition périmée. Pour du code : tester via `pf_validate_python_column` sur le `live_ref`, puis `pf_propose_python_column_code(live_ref, validation_id)` — l'utilisateur applique en 1 clic (re-test possible dans l'inspecteur).
+3. `pf_run_plan(document_ref)` puis `pf_run_start(run_token, confirm=true)` : sur document live, l'utilisateur doit en plus cliquer « Autoriser le prochain run » (le plan reste valide ; avec `live_ref`, le plan se construit depuis le snapshot, pas depuis un pipeline fourni) ; sur fichier, la confirmation `confirm=true` suffit et la réponse le rappelle. Relire les écrasements (`exists`/`overwrite`) et les règles `block`/`reject` nommées avant de confirmer. `pf_run_cancel()` annule au mieux (points sûrs, sorties partielles à vérifier). Ne jamais appliquer un reçu live au fichier (`live_read_only`).
+
 Détail des outils et des erreurs : `references/tools.md` et `references/troubleshooting.md`.
 
 ## 4. Règles non négociables
