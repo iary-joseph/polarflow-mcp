@@ -79,7 +79,11 @@ Après activation : redémarrer le client (un serveur MCP ne se recharge pas à 
    - `pf_validate_python_column(document_ref, node_id, code, execution_mode?)` → aperçu + schéma observé + `validation_id` (15 min, usage unique).
    - `pf_apply_python_column_code(validation_id, accept_contract=true)` → réécrit le fichier avec **exactement** le code testé.
    - Même discipline pour `python_reader` : `pf_validate_python_reader` (pipeline jetable, schéma observé) puis `pf_apply_python_reader_code` (`output_schema`, jamais de contrat).
-6. **Retoucher le graphe** : `pf_validate_pipeline_patch(document_ref, groups)` → proposition (5 groupes, 10 ops, code Python exclu), puis `pf_apply_pipeline_patch(validation_id, selected_group_ids?)` (tout ou partie, garde SHA-256). Pour un dossier : `pf_scan_pipelines(root)` puis une boucle validate → apply par fichier.
+6. **Retoucher le graphe** : `pf_validate_pipeline_patch(document_ref, groups)` → proposition (10 groupes, 20 ops structurelles + 50 libellés seuls, code Python exclu), puis `pf_apply_pipeline_patch(validation_id, selected_group_ids?)` (tout ou partie, garde SHA-256). Pour un dossier : `pf_scan_pipelines(root)` puis une boucle validate → apply par fichier.
+   - Forme exigée : `groups=[{title, ops:[...]}]`, jamais d'ops à plat (un groupe = une étape : lecture, transfo + câblage, writer).
+   - Ops : `add_node{id,type,label,data}` (`data` = schéma Pydantic du type, voir `pf_node_catalog`), `add_edge` / `remove_edge{source,target}` (remove sur connexion existante uniquement), `update_node{id,data: champs modifiés seuls}`, `delete_node{id}` + recâblage des voisins (ex. supprimer un filtre entre A et B = `delete_node` + `add_edge` A→B).
+   - `join` = 2 entrées (ordre = gauche/droite) ; lecteurs = 0 entrée ; writers = 1 entrée (`excel_writer` = N).
+   - **Script → graphe sans le code source** : `pf_companion_context` puis `pf_schema` puis `pf_node_catalog` d'abord, ne jamais inventer de colonne, `output_path` demandé tel quel (sinon nœud avec chemin vide). Correspondances usuelles : lecture → `*_reader`, `merge` → `join`, `groupby` → `aggregate`, calcul simple → `with_columns`, SI/SINON texte → `conditional_column`, date → `select_cast`, calcul libre → `python_column` en phase 2 (patch exclu). `pf_help(query="patch groups")` rappelle ce format.
 7. **Exporter** : `pf_codegen(document_ref, save_to="C:\projet\export\pipeline.py")` (ou `format="notebook"` avec un chemin `.ipynb`).
 
 ## Travailler sur le document ouvert (live)

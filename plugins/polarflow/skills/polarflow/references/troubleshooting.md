@@ -30,6 +30,23 @@
 | `io_error` | Droits ou fichier verrouillé | Fermer le logiciel qui verrouille, vérifier les droits |
 | `engine_error` | Erreur moteur 5xx ou réponse illisible | Relancer Studio puis réessayer |
 
+## Patch refusé : `aucun groupe valide` (`invalid_pipeline` sur patch)
+
+Le moteur a écarté tous les groupes (`warnings`/`dropped_groups` expliquent
+pourquoi). Ne pas réessayer à l'identique :
+
+1. **Ops à plat** : `[{op:...}]` au lieu de `[{title, ops:[...]}]` → 0 op retenue.
+   Toujours envelopper dans `groups`.
+2. **Nœud Python** (`python_column`/`python_reader` en ajout ou modification) :
+   exclu du patch — passer par `pf_validate_python_column` puis apply/propose.
+3. **`id` déjà utilisé, type inconnu, `data` invalide** : relire `pf_node_catalog()`
+   (recettes éprouvées par type).
+4. **Arête impossible** : `add_edge` vers nœud inconnu, `remove_edge` sur connexion
+   inexistante, auto-boucle, `join` sans ses 2 entrées.
+5. **`update_node` sans changement effectif** : ne renvoyer que les champs modifiés.
+6. **Nœud orphelin** : insertion sans `remove_edge` + 2 `add_edge`, ou `delete_node`
+   sans recâbler les voisins (le message « sans entrée » signale le chaînon manquant).
+
 ## Cas particuliers
 
 - **Le client ne voit pas les outils `pf_*`** : après une installation de serveur MCP, il faut redémarrer le client (`/reload-plugins` dans Claude Code). Vérifier `/mcp` (Claude Code) ou `codex mcp list`.

@@ -20,7 +20,7 @@ Tous les chemins sont **absolus** (Windows). `project_dir` est obligatoire si le
 | `pf_apply_python_column_code` | `validation_id`, `accept_contract?` (défaut `true`) | `{applied, already_applied, node_id, contract_written, revision}` | non |
 | `pf_validate_python_reader` | `document_ref`, `node_id`, `code` | `{validation_id, observed_columns, preview, truncated, omissions, expires_in_s}` | **oui** |
 | `pf_apply_python_reader_code` | `validation_id`, `accept_schema?` (défaut `true`) | `{applied, node_id, schema_written, warnings, revision}` | non |
-| `pf_validate_pipeline_patch` | `document_ref` (fichier), `groups` (5 max, 10 ops, code Python exclu) | `{validation_id, status, groups, dropped_groups, warnings, expires_in_s}` | non |
+| `pf_validate_pipeline_patch` | `document_ref` (fichier), `groups=[{title, ops:[...]}]` (10 groupes, 20 ops + 50 libellés, code Python exclu) | `{validation_id, status, groups, dropped_groups, warnings, expires_in_s}` | non |
 | `pf_apply_pipeline_patch` | `validation_id`, `selected_group_ids?` (`None` = tout) | `{applied, groups_applied, revision}` | non |
 | `pf_scan_pipelines` | `root`, `recursive?`, `pattern?` | `{root, files[{path, size_bytes, valid, ...}], truncated, omissions}` (100 max) | non |
 | `pf_live_status` | — | `{live_ref, revision, pushed_at, expires_in_s, proposals_pending}` (jamais de contenu) | non |
@@ -30,6 +30,27 @@ Tous les chemins sont **absolus** (Windows). `project_dir` est obligatoire si le
 | `pf_run_start` | `run_token`, `confirm` (`true` exigé) | `{status: completed\|cancelled, revision, writers, outputs, message?, confirmation_note?}` | **oui** |
 | `pf_run_cancel` | — | `{cancelled, reason?}` (`no_active_run` si rien ne tourne) | non |
 | `pf_codegen` | `document_ref` (fichier), `save_to`, `format?` (`script`/`notebook`), `overwrite?`, `strict?` | `{path, bytes, sha256, format, warnings, syntax_ok, run_contract_present}` | non |
+
+## Format du patch graphe (script → pipeline)
+
+`groups` est une liste de groupes, jamais d'ops à plat : `[{title, ops:[...]}]`
+(un groupe = une étape : lecture, transfo + câblage, writer).
+
+- `add_node{id,type,label,data}` : `data` suit le schéma Pydantic du type
+  (voir `pf_node_catalog()`). `join` = 2 entrées (ordre = gauche/droite) ;
+  lecteurs = 0 entrée ; writers = 1 entrée (`excel_writer` = N).
+- `add_edge` / `remove_edge{source,target}` : `remove` uniquement pour
+  réaiguiller une connexion existante (ex. insérer un nœud entre deux autres).
+- `update_node{id,data}` : champs modifiés seuls (un libellé seul suit la voie
+  cosmétique, jusqu'à 50 ops).
+- `delete_node{id}` : supprime le nœud et ses flèches, puis recâbler les
+  voisins (ex. supprimer un filtre entre A et B = `delete_node` + `add_edge` A→B).
+- Code `python_column` / `python_reader` exclu : phase 1 = structure via le
+  patch, phase 2 = `pf_validate_python_column` puis apply/propose.
+- Sans le code source : `pf_companion_context` puis `pf_schema` puis
+  `pf_node_catalog` d'abord, ne jamais inventer de colonne, `output_path`
+  demandé tel quel (sinon nœud avec chemin vide). `pf_help(query="patch groups")`
+  rappelle ce format.
 
 ## Cycle validate → apply
 
